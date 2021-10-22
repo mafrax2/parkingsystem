@@ -65,7 +65,7 @@ public class ParkingService {
 		try {
 			ParkingType parkingType = getVehichleType();
 			parkingNumber = parkingSpotDAO.getNextAvailableSlot(parkingType);
-			// Test
+			
 			if (parkingNumber > 0) {
 				parkingSpot = new ParkingSpot(parkingNumber, parkingType, true);
 			} else {

@@ -1,7 +1,6 @@
 package com.parkit.parkingsystem.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
@@ -60,17 +59,16 @@ public class ParkingDataBaseIT {
 		Ticket latestTicket = ticketDAO.getLastTicket();
 
 		assertNotNull(latestTicket);
-		assertNotEquals(parkingSpotDAO.getAvailableParkingSlotsCount(), 3);
+		assertEquals(parkingSpotDAO.getAvailableParkingSlotsCount(), 4);
 
 	}
 
 	@Test
-	public void testParkingACarNoSlots() {
+	public void testParkingACarNoSlots() throws Exception {
 		dataBasePrepareService.fullParkingDataBaseEntries();
+		when(inputReaderUtil.readSelection()).thenReturn(1);
 		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 		parkingService.processIncomingVehicle();
-
-//		assertThrows(Exception.class, () -> parkingService.getNextParkingNumberIfAvailable());
 
 		assertEquals(parkingSpotDAO.getAvailableParkingSlotsCount(), 0);
 
@@ -81,16 +79,12 @@ public class ParkingDataBaseIT {
 		when(inputReaderUtil.readSelection()).thenReturn(1);
 		when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
 		processIncomingVehicleIT();
-		Ticket ticket = ticketDAO.getTicket("ABCDEF");
 		ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 		parkingService.processExitingVehicle();
-		Ticket latestTicket = ticketDAO.getLastExitTicket();
+		Ticket ticket = ticketDAO.getTicket("ABCDEF");
 
-		assertEquals(ticket.getId(), latestTicket.getId());
-		assertEquals(ticket.getInTime(), latestTicket.getInTime());
-		assertNotNull(latestTicket.getOutTime());
-		assertEquals(ticket.getVehicleRegNumber(), latestTicket.getVehicleRegNumber());
-		assertNotNull(latestTicket.getPrice());
+		assertNotNull(ticket.getOutTime());
+		assertNotNull(ticket.getPrice());
 
 		// TODO: check that the fare generated and out time are populated correctly in
 		// the database
